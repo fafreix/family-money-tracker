@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionnaire Familial - Romain & Emma</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .romain-theme { background: linear-gradient(135deg, #3b82f6, #1e40af); }
+        .emma-theme { background: linear-gradient(135deg, #ec4899, #be185d); }
+        .avatar-romain { background: #3b82f6; }
+        .avatar-emma { background: #ec4899; }
+        .card-romain { border-left: 4px solid #3b82f6; }
+        .card-emma { border-left: 4px solid #ec4899; }
+        .animate-pulse-custom { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .tab-active { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 py-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-piggy-bank text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900">Gestionnaire Familial</h1>
+                            <p class="text-gray-600">Romain & Emma</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <div class="avatar-romain w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm">R</div>
+                            <div class="avatar-emma w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm">E</div>
+                        </div>
+                        <button id="exportBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                            <i class="fas fa-download mr-2"></i>Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="bg-white border-b">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex space-x-8">
+                    <button id="tab-add" class="tab-btn tab-active px-4 py-3 text-white font-medium rounded-t-lg">
+                        <i class="fas fa-plus mr-2"></i>Nouvelle Transaction
+                    </button>
+                    <button id="tab-dashboard" class="tab-btn px-4 py-3 text-gray-600 hover:text-gray-900 font-medium">
+                        <i class="fas fa-chart-bar mr-2"></i>Tableau de Bord
+                    </button>
+                    <button id="tab-reports" class="tab-btn px-4 py-3 text-gray-600 hover:text-gray-900 font-medium">
+                        <i class="fas fa-chart-line mr-2"></i>Récapitulatifs
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Content Container -->
+        <main class="max-w-7xl mx-auto px-4 py-8">
+            
+            <!-- Add Transaction Tab -->
+            <div id="content-add" class="tab-content">
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">
+                        <i class="fas fa-money-bill-wave text-green-500 mr-3"></i>
+                        Nouvelle Transaction
+                    </h2>
+                    
+                    <form id="transactionForm" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Qui envoie ?</label>
+                                <select id="sender" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="Papa">👨‍👩‍👧‍👦 Papa</option>
+                                    <option value="Maman">👩‍👩‍👧‍👦 Maman</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                                <input type="date" id="date" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Enfant</label>
+                                <select id="child" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="ROMAIN">👦 ROMAIN</option>
+                                    <option value="EMMA">👧 EMMA</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Montant (€)</label>
+                                <input type="number" id="amount" step="0.01" min="0" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="0.00">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Motif</label>
+                            <select id="reason" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="Argent de poche">💰 Argent de poche</option>
+                                <option value="Récompense">🏆 Récompense</option>
+                                <option value="Sortie cinéma">🎬 Sortie cinéma</option>
+                                <option value="Restaurant">🍽️ Restaurant</option>
+                                <option value="Jeux">🎮 Jeux</option>
+                                <option value="Livres">📚 Livres</option>
+                                <option value="Vêtements">👕 Vêtements</option>
+                                <option value="Activité sportive">⚽ Activité sportive</option>
+                                <option value="Sortie amis">👥 Sortie amis</option>
+                                <option value="Matériel scolaire">✏️ Matériel scolaire</option>
+                                <option value="Autre">🔄 Autre</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Notes (optionnel)</label>
+                            <textarea id="notes" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Ajouter des notes..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-lg transition duration-200 transform hover:scale-105">
+                            <i class="fas fa-save mr-2"></i>Enregistrer la Transaction
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="content-dashboard" class="tab-content hidden">
+                <div class="space-y-8">
+                    <!-- Quick Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <div class="flex items-center">
+                                <div class="avatar-romain w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4">R</div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Total Romain</p>
+                                    <p id="total-romain" class="text-2xl font-bold text-blue-600">0 €</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <div class="flex items-center">
+                                <div class="avatar-emma w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4">E</div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Total Emma</p>
+                                    <p id="total-emma" class="text-2xl font-bold text-pink-600">0 €</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white text-xl mr-4">
+                                    <i class="fas fa-euro-sign"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Total Général</p>
+                                    <p id="total-general" class="text-2xl font-bold text-green-600">0 €</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white text-xl mr-4">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Ce Mois</p>
+                                    <p id="total-month" class="text-2xl font-bold text-purple-600">0 €</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">
+                            <i class="fas fa-filter mr-2"></i>Filtres
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <select id="filter-child" class="border border-gray-300 rounded-lg px-3 py-2">
+                                <option value="">Tous les enfants</option>
+                                <option value="ROMAIN">Romain</option>
+                                <option value="EMMA">Emma</option>
+                            </select>
+                            <select id="filter-sender" class="border border-gray-300 rounded-lg px-3 py-2">
+                                <option value="">Tous les expéditeurs</option>
+                                <option value="Papa">Papa</option>
+                                <option value="Maman">Maman</option>
+                            </select>
+                            <input type="date" id="filter-date-from" class="border border-gray-300 rounded-lg px-3 py-2" placeholder="Date de début">
+                            <input type="date" id="filter-date-to" class="border border-gray-300 rounded-lg px-3 py-2" placeholder="Date de fin">
+                        </div>
+                    </div>
+
+                    <!-- Transactions List -->
+                    <div class="bg-white rounded-xl shadow-lg">
+                        <div class="p-6 border-b">
+                            <h3 class="text-lg font-bold text-gray-900">
+                                <i class="fas fa-list mr-2"></i>Historique des Transactions
+                            </h3>
+                        </div>
+                        <div id="transactions-list" class="divide-y divide-gray-200">
+                            <div class="p-6 text-center text-gray-500">
+                                Aucune transaction enregistrée
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div id="content-reports" class="tab-content hidden">
+                <div class="space-y-8">
+                    <!-- Chart Container -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-gray-900 mb-4">
+                                <i class="fas fa-chart-pie mr-2"></i>Répartition par Enfant
+                            </h3>
+                            <canvas id="childChart" style="height: 300px;"></canvas>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-gray-900 mb-4">
+                                <i class="fas fa-chart-bar mr-2"></i>Évolution Mensuelle
+                            </h3>
+                            <canvas id="monthlyChart" style="height: 300px;"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Equity Alert -->
+                    <div id="equity-alert" class="hidden bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700">
+                                    <strong>Alerte d'équité :</strong> <span id="equity-message"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Reasons -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">
+                            <i class="fas fa-trophy mr-2"></i>Top des Motifs
+                        </h3>
+                        <div id="top-reasons" class="space-y-3">
+                            <p class="text-gray-500">Aucune donnée disponible</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Success Toast -->
+    <div id="toast" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+        <i class="fas fa-check-circle mr-2"></i>
+        <span id="toast-message">Transaction enregistrée avec succès !</span>
+    </div>
+
+    <script>
+        // Application State
+        let transactions = JSON.parse(localStorage.getItem('familyTransactions')) || [];
+        let currentTab = 'add';
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            // Set today's date as default
+            document.getElementById('date').valueAsDate = new Date();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Update dashboard
+            updateDashboard();
+            updateReports();
+        }
+
+        function setupEventListeners() {
+            // Tab navigation
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabId = this.id.replace('tab-', '');
+                    showTab(tabId);
+                });
+            });
+
+            // Form submission
+            document.getElementById('transactionForm').addEventListener('submit', handleTransactionSubmit);
+
+            // Filters
+            document.getElementById('filter-child').addEventListener('change', applyFilters);
+            document.getElementById('filter-sender').addEventListener('change', applyFilters);
+            document.getElementById('filter-date-from').addEventListener('change', applyFilters);
+            document.getElementById('filter-date-to').addEventListener('change', applyFilters);
+
+            // Export button
+            document.getElementById('exportBtn').addEventListener('click', exportData);
+        }
+
+        function showTab(tabName) {
+            // Hide all content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('tab-active');
+                btn.classList.add('text-gray-600', 'hover:text-gray-900');
+                btn.classList.remove('text-white');
+            });
+
+            // Show selected content
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+
+            // Add active class to selected tab
+            const activeTab = document.getElementById(`tab-${tabName}`);
+            activeTab.classList.add('tab-active');
+            activeTab.classList.remove('text-gray-600', 'hover:text-gray-900');
+            activeTab.classList.add('text-white');
+
+            currentTab = tabName;
+
+            if (tabName === 'reports') {
+                setTimeout(updateReports, 100); // Delay to ensure canvas is visible
+            }
+        }
+
+        function handleTransactionSubmit(e) {
+            e.preventDefault();
+            
+            const transaction = {
+                id: Date.now(),
+                sender: document.getElementById('sender').value,
+                date: document.getElementById('date').value,
+                child: document.getElementById('child').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                reason: document.getElementById('reason').value,
+                notes: document.getElementById('notes').value,
+                timestamp: new Date().toISOString()
+            };
+
+            if (!transaction.amount || transaction.amount <= 0) {
+                alert('Veuillez entrer un montant valide');
+                return;
+            }
+
+            transactions.push(transaction);
+            saveTransactions();
+            
+            // Reset form
+            document.getElementById('transactionForm').reset();
+            document.getElementById('date').valueAsDate = new Date();
+            
+            // Show success toast
+            showToast('Transaction enregistrée avec succès !');
+            
+            // Update displays
+            updateDashboard();
+            updateReports();
+        }
+
+        function saveTransactions() {
+            localStorage.setItem('familyTransactions', JSON.stringify(transactions));
+        }
+
+        function updateDashboard() {
+            const romainTotal = transactions
+                .filter(t => t.child === 'ROMAIN')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const emmaTotal = transactions
+                .filter(t => t.child === 'EMMA')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const generalTotal = romainTotal + emmaTotal;
+            
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            const monthlyTotal = transactions
+                .filter(t => {
+                    const date = new Date(t.date);
+                    return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+                })
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            document.getElementById('total-romain').textContent = `${romainTotal.toFixed(2)} €`;
+            document.getElementById('total-emma').textContent = `${emmaTotal.toFixed(2)} €`;
+            document.getElementById('total-general').textContent = `${generalTotal.toFixed(2)} €`;
+            document.getElementById('total-month').textContent = `${monthlyTotal.toFixed(2)} €`;
+
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const childFilter = document.getElementById('filter-child').value;
+            const senderFilter = document.getElementById('filter-sender').value;
+            const dateFromFilter = document.getElementById('filter-date-from').value;
+            const dateToFilter = document.getElementById('filter-date-to').value;
+
+            let filteredTransactions = transactions.filter(t => {
+                if (childFilter && t.child !== childFilter) return false;
+                if (senderFilter && t.sender !== senderFilter) return false;
+                if (dateFromFilter && t.date < dateFromFilter) return false;
+                if (dateToFilter && t.date > dateToFilter) return false;
+                return true;
+            });
+
+            displayTransactions(filteredTransactions);
+        }
+
+        function displayTransactions(transactionsToShow) {
+            const container = document.getElementById('transactions-list');
+            
+            if (transactionsToShow.length === 0) {
+                container.innerHTML = '<div class="p-6 text-center text-gray-500">Aucune transaction trouvée</div>';
+                return;
+            }
+
+            // Sort by date (newest first)
+            transactionsToShow.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            container.innerHTML = transactionsToShow.map(t => `
+                <div class="p-6 flex items-center justify-between hover:bg-gray-50 card-${t.child.toLowerCase()}">
+                    <div class="flex items-center space-x-4">
+                        <div class="avatar-${t.child.toLowerCase()} w-10 h-10 rounded-full flex items-center justify-center text-white font-bold">
+                            ${t.child[0]}
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">${t.child}</p>
+                            <p class="text-sm text-gray-600">${t.reason}</p>
+                            ${t.notes ? `<p class="text-xs text-gray-500 mt-1">${t.notes}</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-lg font-bold text-green-600">${t.amount.toFixed(2)} €</p>
+                        <p class="text-sm text-gray-600">${t.sender} • ${formatDate(t.date)}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateReports() {
+            if (currentTab !== 'reports') return;
+
+            updateChildChart();
+            updateMonthlyChart();
+            updateEquityAlert();
+            updateTopReasons();
+        }
+
+        function updateChildChart() {
+            const ctx = document.getElementById('childChart').getContext('2d');
+            
+            const romainTotal = transactions
+                .filter(t => t.child === 'ROMAIN')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const emmaTotal = transactions
+                .filter(t => t.child === 'EMMA')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Romain', 'Emma'],
+                    datasets: [{
+                        data: [romainTotal, emmaTotal],
+                        backgroundColor: ['#3b82f6', '#ec4899'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateMonthlyChart() {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            
+            // Get last 6 months data
+            const monthlyData = {};
+            const months = [];
+            
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date();
+                date.setMonth(date.getMonth() - i);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                const monthLabel = date.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
+                
+                months.push(monthLabel);
+                monthlyData[monthKey] = { romain: 0, emma: 0 };
+            }
+
+            transactions.forEach(t => {
+                const date = new Date(t.date);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                
+                if (monthlyData[monthKey]) {
+                    if (t.child === 'ROMAIN') {
+                        monthlyData[monthKey].romain += t.amount;
+                    } else if (t.child === 'EMMA') {
+                        monthlyData[monthKey].emma += t.amount;
+                    }
+                }
+            });
+
+            const romainData = Object.values(monthlyData).map(m => m.romain);
+            const emmaData = Object.values(monthlyData).map(m => m.emma);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Romain',
+                            data: romainData,
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Emma',
+                            data: emmaData,
+                            backgroundColor: '#ec4899',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + ' €';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateEquityAlert() {
+            const romainTotal = transactions
+                .filter(t => t.child === 'ROMAIN')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const emmaTotal = transactions
+                .filter(t => t.child === 'EMMA')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const alert = document.getElementById('equity-alert');
+            const message = document.getElementById('equity-message');
+
+            if (romainTotal === 0 && emmaTotal === 0) {
+                alert.classList.add('hidden');
+                return;
+            }
+
+            const difference = Math.abs(romainTotal - emmaTotal);
+            const higher = romainTotal > emmaTotal ? 'Romain' : 'Emma';
+            const percentage = ((difference / Math.max(romainTotal, emmaTotal)) * 100).toFixed(1);
+
+            if (percentage > 20) {
+                alert.classList.remove('hidden');
+                message.textContent = `${higher} a reçu ${percentage}% de plus que l'autre enfant (différence: ${difference.toFixed(2)} €)`;
+            } else {
+                alert.classList.add('hidden');
+            }
+        }
+
+        function updateTopReasons() {
+            const reasonCounts = {};
+            transactions.forEach(t => {
+                reasonCounts[t.reason] = (reasonCounts[t.reason] || 0) + t.amount;
+            });
+
+            const sortedReasons = Object.entries(reasonCounts)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 5);
+
+            const container = document.getElementById('top-reasons');
+            
+            if (sortedReasons.length === 0) {
+                container.innerHTML = '<p class="text-gray-500">Aucune donnée disponible</p>';
+                return;
+            }
+
+            container.innerHTML = sortedReasons.map(([reason, amount], index) => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                            ${index + 1}
+                        </span>
+                        <span class="font-medium">${reason}</span>
+                    </div>
+                    <span class="text-lg font-bold text-green-600">${amount.toFixed(2)} €</span>
+                </div>
+            `).join('');
+        }
+
+        function exportData() {
+            const data = {
+                transactions: transactions,
+                summary: {
+                    romain_total: transactions.filter(t => t.child === 'ROMAIN').reduce((sum, t) => sum + t.amount, 0),
+                    emma_total: transactions.filter(t => t.child === 'EMMA').reduce((sum, t) => sum + t.amount, 0),
+                    export_date: new Date().toISOString()
+                }
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `family_money_export_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast('Données exportées avec succès !');
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('fr-FR');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            
+            toastMessage.textContent = message;
+            toast.classList.remove('hidden');
+            
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"979bfc02f8a3e1ec","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"version":"2025.8.0","token":"4edd5f8ec12a48cfa682ab8261b80a79"}' crossorigin="anonymous"></script>
+</body>
+</html>
+    <script id="html_badge_script1">
+        window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
+            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDqaNX63WWCBIscTOnrv8j2dnFtfktOL%2B1hPOF2Hbz6spKEw0A90NFIe5C3OTcouiZ9jlXwxfY0KdLHRF85axpiR2bZvj6x%2FxMLJzL3ygCN0raX5ADCDdFcddER6%2FokqxX7tj910Omktu%2B%2BrOu%2B%2FGOvlyubMZ3OJ7FD6A30dpxaiRAzwlWCb8JjRhUgncw3ujoBYYALKw%2FNNoewXDwrnOzfzP6L7keQigPxQlAipjbHXBCEaOx6og4D7osmpuLjfskY6OD0jOozMGkhj0ZtxoSkxzd3E6sPKQXtqWFaVZYg3ph%2F0sXIREJsgSsYZEBm7tKciY1JG9Y%2BF3T3to7b8Kd92nrUZSkZAxATpJI317fEMEJnt5Ql%2F1RfgrY3zSFn7SNSRYTucfTM1bnMOPcrBGAaapkwHO3T4hPdTJjQ2mEotYnue2BJRTKcoWGP8e07wnW1UOnYWdH4riWoLdbJjDJUmENsx049Ncvb9g3dbtPjf6UQlSQ2d%2BnUXVuVSLm%2BBYni1i3mDIKgNN6QfULNVALoQ%3D";
+        window.__genspark_locale = "fr-FR";
+        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDqaNX63WWCBIscTOnrv8j2dnFtfktOL+1hPOF2Hbz6spKEw0A90NFIe5C3OTcouiZ9jlXwxfY0KdLHRF85axpiR2bZvj6x/xMLJzL3ygCN0raX5ADCDdFcddER6/okqxX7tj910Omktu++rOu+/GOvlyubMZ3OJ7FD6A30dpxaiRAzwlWCb8JjRhUgncw3ujoBYYALKw/NNoewXDwrnOzfzP6L7keQigPxQlAipjbHXBCEaOx6og4D7osmpuLjfskY6OD0jOozMGkhj0ZtxoSkxzd3E6sPKQXtqWFaVZYg3ph/0sXIREJsgSsYZEBm7tKciY1JG9Y+F3T3to7b8Kd92nrUZSkZAxATpJI317fEMEJnt5Ql/1RfgrY3zSFn7SNSRYTucfTM1bnMOPcrBGAaapkwHO3T4hPdTJjQ2mEotYnue2BJRTKcoWGP8e07wnW1UOnYWdH4riWoLdbJjDJUmENsx049Ncvb9g3dbtPjf6UQlSQ2d+nUXVuVSLm+BYni1i3mDIKgNN6QfULNVALoQ=";
+    </script>
+    
+    <script id="html_notice_dialog_script" src="https://www.genspark.ai/notice_dialog.js"></script>
+    
